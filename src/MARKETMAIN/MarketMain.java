@@ -606,8 +606,6 @@ public class MarketMain {
             }
         }
     }
-
-
 }
 
 

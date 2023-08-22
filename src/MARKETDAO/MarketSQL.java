@@ -51,6 +51,23 @@ public class MarketSQL {
         return checkId;
     }
 
+    public int prodNumber() {
+        int pNum = 0;
+        String sql = "SELECT MAX(PNUM) FROM PRODUCT";
+
+        try {
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                pNum = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return pNum;
+    }
+
     public int memNumber() {
         int memNum = 0;
         String sql = "SELECT MAX(MEMNUM) FROM MEMBER";
@@ -67,7 +84,6 @@ public class MarketSQL {
         }
         return memNum;
     }
-
 
     public void memJoin(Member mem) {
         String sql = "INSERT INTO MEMBER VALUES(?,?,?,?,?,?,?)";
@@ -118,23 +134,6 @@ public class MarketSQL {
             throw new RuntimeException(e);
         }
         return check;
-    }
-
-    public int prodNumber() {
-        int pNum = 0;
-        String sql = "SELECT MAX(PNUM) FROM PRODUCT";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                pNum = rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return pNum;
     }
 
     public void productInsert(Product prod) {
@@ -190,151 +189,6 @@ public class MarketSQL {
         return check;
     }
 
-
-    public List<Product> selectproduct(int cateNum) {
-        List<Product> plist = new ArrayList<>();
-        String sql = "SELECT * FROM PRODUCT WHERE PCATEGORY=?";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, cateNum);
-
-            rs = pstmt.executeQuery();
-            int cnt = 0;
-            while (rs.next()) {
-                Product p = new Product();
-                p.setpNum(rs.getInt("pNum"));
-                p.setpName(rs.getString("pName"));
-                p.setpNewUsed(rs.getString("pNewused"));
-                p.setpCategory(rs.getInt("pCategory"));
-                p.setpLike(rs.getInt("pLike"));
-                p.setpPrice(rs.getInt("pPrice"));
-                p.setpMemo(rs.getString("pMemo"));
-                p.setpDate(rs.getString("pDate"));
-                p.setMemId(rs.getString("memId"));
-
-                plist.add(p);
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return plist;
-    }
-
-    public boolean checkName(String pName) {
-        boolean checkN = false;
-        String sql = "SELECT * FROM PRODUCT WHERE PNAME LIKE ?";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, "%" + pName + "%");
-
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                checkN = true;
-            } else {
-                checkN = false;
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return checkN;
-    }
-
-    public List<Product> selectName(String pName) {
-        List<Product> plist1 = new ArrayList<>();
-        String sql = "SELECT * FROM PRODUCT WHERE PNAME LIKE ?";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, "%" + pName + "%");
-
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-
-                Product pn = new Product();
-                pn.setpNum(rs.getInt("pNum"));
-                pn.setpName(rs.getString("pName"));
-                pn.setpNewUsed(rs.getString("pNewused"));
-                pn.setpCategory(rs.getInt("pCategory"));
-                pn.setpLike(rs.getInt("pLike"));
-                pn.setpPrice(rs.getInt("pPrice"));
-                pn.setpMemo(rs.getString("pMemo"));
-                pn.setpDate(rs.getString("pDate"));
-                pn.setMemId(rs.getString("memId"));
-
-                plist1.add(pn);
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return plist1;
-    }
-
-    public boolean checkMember() {
-        boolean check = false;
-        String sql = "SELECT * FROM MEMBER WHERE MEMID";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                check = true;
-            }
-
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return check;
-    }
-
-
-    public List<Member> selectMemId(String memId) {
-        List<Member> mlist = new ArrayList<>();
-        String sql = "SELECT * FROM MEMBER WHERE MEMID=?";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, memId);
-
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                int cnt = 0;
-                Member m = new Member();
-                m.setMemNum(rs.getInt("memNum"));
-                m.setMemName(rs.getString("memName"));
-                m.setMemId(rs.getString("memId"));
-                m.setMemPw(rs.getString("memPw"));
-                m.setMemPhone(rs.getString("memPhone"));
-                m.setMemAddr(rs.getString("memAddr"));
-                m.setPoint(rs.getInt("point"));
-                mlist.add(m);
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return mlist;
-    }
-
-
     public List<Product> checkDate() {
         List<Product> plist2 = new ArrayList<>();
         String sql = "SELECT * FROM PRODUCT ORDER BY PDATE DESC";
@@ -366,7 +220,6 @@ public class MarketSQL {
         }
         return plist2;
     }
-
 
     public List<Product> checkLike() {
         List<Product> plist3 = new ArrayList<>();
@@ -496,73 +349,29 @@ public class MarketSQL {
         return plist6;
     }
 
-    public boolean checkMemId(String memId, String memPw) {
-        boolean check = false;
-        String sql = "SELECT * FROM MEMBER WHERE MEMID = ? AND MEMPW = ?";
+    public List<Product> selectproduct(int cateNum) {
+        List<Product> plist = new ArrayList<>();
+        String sql = "SELECT * FROM PRODUCT WHERE PCATEGORY=?";
+
         try {
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, memId);
-            pstmt.setString(2, memPw);
+            pstmt.setInt(1, cateNum);
 
             rs = pstmt.executeQuery();
-            if (rs.next()) {
-                check = true;
-            } else {
-                check = false;
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return check;
-    }
-
-    public void memModify(Member mem) {
-        System.out.println(mem);
-
-        String sql = "UPDATE MEMBER SET MEMNAME = ?, MEMPW = ?, " +
-                "MEMPHONE = ?, MEMADDR = ? WHERE MEMID = ?";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, mem.getMemName());
-            pstmt.setString(2, mem.getMemPw());
-            pstmt.setString(3, mem.getMemPhone());
-            pstmt.setString(4, mem.getMemAddr());
-            pstmt.setString(5, mem.getMemId());
-
-            int result = pstmt.executeUpdate();
-            if (result > 0){
-                System.out.println("회원정보가 수정되었습니다.");
-            } else {
-                System.out.println("회원정보수정에 실패하셨습니다.");
-            }
-            pstmt.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<Orderlist> odrList() {
-        List<Orderlist> odrList = new ArrayList<>();
-        String sql = "SELECT * FROM ORDERLIST";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
+            int cnt = 0;
             while (rs.next()) {
-                Orderlist ordl = new Orderlist();
-                ordl.setOrdNum(rs.getInt("ordNum"));
-                ordl.setpNum(rs.getInt("pNum"));
-                ordl.setSeller(rs.getString("seller"));
-                ordl.setBuyer(rs.getString("buyer"));
-                ordl.setSellDate(rs.getString("sellDate"));
+                Product p = new Product();
+                p.setpNum(rs.getInt("pNum"));
+                p.setpName(rs.getString("pName"));
+                p.setpNewUsed(rs.getString("pNewused"));
+                p.setpCategory(rs.getInt("pCategory"));
+                p.setpLike(rs.getInt("pLike"));
+                p.setpPrice(rs.getInt("pPrice"));
+                p.setpMemo(rs.getString("pMemo"));
+                p.setpDate(rs.getString("pDate"));
+                p.setMemId(rs.getString("memId"));
 
-                odrList.add(ordl);
+                plist.add(p);
             }
             pstmt.close();
             rs.close();
@@ -570,39 +379,7 @@ public class MarketSQL {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return odrList;
-    }
-
-    public List<Product> selectOrdlist(String loginId) {
-        List<Product> selectOrdlist = new ArrayList<>();
-        String sql = "SELECT * FROM PRODUCT WHERE MEMID";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-
-                Product po = new Product();
-                po.setpNum(rs.getInt("pNum"));
-                po.setpName(rs.getString("pName"));
-                po.setpNewUsed(rs.getString("pNewused"));
-                po.setpCategory(rs.getInt("pCategory"));
-                po.setpLike(rs.getInt("pLike"));
-                po.setpPrice(rs.getInt("pPrice"));
-                po.setpMemo(rs.getString("pMemo"));
-                po.setpDate(rs.getString("pDate"));
-                po.setMemId(rs.getString("memId"));
-
-                selectOrdlist.add(po);
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return selectOrdlist;
+        return plist;
     }
 
     public List<Product> searchpNum(int pNum) {
@@ -739,6 +516,86 @@ public class MarketSQL {
         }
     }
 
+    public List<Member> selectMemId(String memId) {
+        List<Member> mlist = new ArrayList<>();
+        String sql = "SELECT * FROM MEMBER WHERE MEMID=?";
+
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, memId);
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int cnt = 0;
+                Member m = new Member();
+                m.setMemNum(rs.getInt("memNum"));
+                m.setMemName(rs.getString("memName"));
+                m.setMemId(rs.getString("memId"));
+                m.setMemPw(rs.getString("memPw"));
+                m.setMemPhone(rs.getString("memPhone"));
+                m.setMemAddr(rs.getString("memAddr"));
+                m.setPoint(rs.getInt("point"));
+                mlist.add(m);
+            }
+            pstmt.close();
+            rs.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return mlist;
+    }
+
+    public boolean checkMemId(String memId, String memPw) {
+        boolean check = false;
+        String sql = "SELECT * FROM MEMBER WHERE MEMID = ? AND MEMPW = ?";
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, memId);
+            pstmt.setString(2, memPw);
+
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                check = true;
+            } else {
+                check = false;
+            }
+            pstmt.close();
+            rs.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return check;
+    }
+
+    public void memModify(Member mem) {
+        System.out.println(mem);
+
+        String sql = "UPDATE MEMBER SET MEMNAME = ?, MEMPW = ?, " +
+                "MEMPHONE = ?, MEMADDR = ? WHERE MEMID = ?";
+
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, mem.getMemName());
+            pstmt.setString(2, mem.getMemPw());
+            pstmt.setString(3, mem.getMemPhone());
+            pstmt.setString(4, mem.getMemAddr());
+            pstmt.setString(5, mem.getMemId());
+
+            int result = pstmt.executeUpdate();
+            if (result > 0){
+                System.out.println("회원정보가 수정되었습니다.");
+            } else {
+                System.out.println("회원정보수정에 실패하셨습니다.");
+            }
+            pstmt.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean selectMemName(String memName, String memPhone) {
         boolean check = false;
         String sql = "SELECT * FROM MEMBER WHERE MEMNAME = ? AND MEMPHONE = ?";
@@ -823,70 +680,6 @@ public class MarketSQL {
         return buyList;
     }
 
-    public List<Orderlist> findSellList(String seller) {
-        List<Orderlist> sellList = new ArrayList<>();
-        String sql = "SELECT * FROM ORDERLIST WHERE SELLER=?";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, seller);
-
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-
-                Orderlist sell = new Orderlist();
-
-                sell.setOrdNum(rs.getInt("ordNum"));
-                sell.setpNum(rs.getInt("pNum"));
-                sell.setSeller(rs.getString("seller"));
-                sell.setBuyer(rs.getString("buyer"));
-                sell.setSellDate(rs.getString("sellDate"));
-
-                sellList.add(sell);
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return sellList;
-    }
-
-    public List<Delivery> selectdelivery(String buyer) {
-        List<Delivery> selectdelivery = new ArrayList<>();
-        String sql = "SELECT * FROM DELIVERY WHERE BUYER=?";
-
-        try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, buyer);
-
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-
-                Delivery deli = new Delivery();
-
-                deli.setDelNum(rs.getInt("delNum"));
-                deli.setpNum(rs.getInt("pNum"));
-                deli.setsDate(rs.getString("sDate"));
-                deli.setrDate(rs.getString("rDate"));
-                deli.setDelResult(rs.getString("delResult"));
-                deli.setDelKind(rs.getInt("delKind"));
-                deli.setDelPrice(rs.getInt("delPrice"));
-                deli.setTotalPrice(rs.getInt("totalPrice"));
-                deli.setBuyer(rs.getString("buyer"));
-
-                selectdelivery.add(deli);
-            }
-            pstmt.close();
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return selectdelivery;
-    }
-
     public List<Product> findBuyProd(int i) {
         List<Product> findBuyProd = new ArrayList<>();
         String sql = "SELECT * FROM PRODUCT WHERE PNUM = ?";
@@ -918,6 +711,36 @@ public class MarketSQL {
             throw new RuntimeException(e);
         }
         return findBuyProd;
+    }
+
+    public List<Orderlist> findSellList(String seller) {
+        List<Orderlist> sellList = new ArrayList<>();
+        String sql = "SELECT * FROM ORDERLIST WHERE SELLER=?";
+
+        try {
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, seller);
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+
+                Orderlist sell = new Orderlist();
+
+                sell.setOrdNum(rs.getInt("ordNum"));
+                sell.setpNum(rs.getInt("pNum"));
+                sell.setSeller(rs.getString("seller"));
+                sell.setBuyer(rs.getString("buyer"));
+                sell.setSellDate(rs.getString("sellDate"));
+
+                sellList.add(sell);
+            }
+            pstmt.close();
+            rs.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return sellList;
     }
 
     public List<Product> findSellProd(int i) {
@@ -952,23 +775,39 @@ public class MarketSQL {
         }
         return findSellProd;
     }
-    
-    public void pointSearch(String loginId) {
-        String sql = "SELECT POINT FROM MEMBER WHERE MEMID=? ";
+
+    public List<Delivery> selectdelivery(String buyer) {
+        List<Delivery> selectdelivery = new ArrayList<>();
+        String sql = "SELECT * FROM DELIVERY WHERE BUYER=?";
 
         try {
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, loginId);
+            pstmt.setString(1, buyer);
 
             rs = pstmt.executeQuery();
+            while (rs.next()) {
 
-            while (rs.next()){
-                System.out.println("포인트 금액 : "+rs.getInt(1));
+                Delivery deli = new Delivery();
+
+                deli.setDelNum(rs.getInt("delNum"));
+                deli.setpNum(rs.getInt("pNum"));
+                deli.setsDate(rs.getString("sDate"));
+                deli.setrDate(rs.getString("rDate"));
+                deli.setDelResult(rs.getString("delResult"));
+                deli.setDelKind(rs.getInt("delKind"));
+                deli.setDelPrice(rs.getInt("delPrice"));
+                deli.setTotalPrice(rs.getInt("totalPrice"));
+                deli.setBuyer(rs.getString("buyer"));
+
+                selectdelivery.add(deli);
             }
+            pstmt.close();
+            rs.close();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return selectdelivery;
     }
 
     public void updatePoint(int point) {
