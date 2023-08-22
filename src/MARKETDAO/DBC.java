@@ -7,9 +7,9 @@ import java.sql.SQLException;
 public class DBC {
     public static Connection DBConnect(){
         Connection con = null;
-        String url = "jdbc:oracle:thin:@localhost:1521:xe";
-        String user = "HYEHWI";
-        String password = "1111";
+        String url = "본인db주소";
+        String user = "본인db아이디";
+        String password = "본인db비밀번호";
 
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
